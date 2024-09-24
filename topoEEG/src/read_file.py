@@ -15,7 +15,7 @@ def construct_file_paths():
 
     for file_num in range(1, 89):
         sub_id = f'sub-{file_num:03d}'
-        file_path = f'./data/bids/{sub_id}/eeg/{sub_id}_task-eyesclosed_eeg.set'
+        file_path = f'.../data/bids/{sub_id}/eeg/{sub_id}_task-eyesclosed_eeg.set'
         
         if file_num < 37:
             file_path_AD.append(file_path)
