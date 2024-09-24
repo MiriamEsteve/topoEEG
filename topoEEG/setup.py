@@ -21,7 +21,8 @@ setup(
         "ripser",
         "gudhi",
         "giotto-tda",
-        "mne"
+        "mne",
+        "POT"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

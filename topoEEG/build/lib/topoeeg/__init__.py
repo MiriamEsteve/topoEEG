@@ -1,1 +1,1 @@
-from ..src.analysis import tda
+from src.analysis import tda

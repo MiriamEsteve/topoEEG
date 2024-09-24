@@ -21,6 +21,7 @@ Requires-Dist: ripser
 Requires-Dist: gudhi
 Requires-Dist: giotto-tda
 Requires-Dist: mne
+Requires-Dist: POT
 
 # topoEEG
 

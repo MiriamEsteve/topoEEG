@@ -7,3 +7,4 @@ ripser
 gudhi
 giotto-tda
 mne
+POT
