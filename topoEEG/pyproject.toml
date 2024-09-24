@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "topoEEG"
+version = "0.1.0"
+description = "Topological Data Analysis in EEG recordings"
+authors = [
+    "Miriam Esteve <miriam.estevecampello@uchceu.es>",
+    "Antonio Falco <afalco@uchceu.es>"
+]
+
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1.21.0"
+matplotlib = "*"
+scipy = "*"
+scikit-learn = "*"
+persim = "*"
+ripser = "*"
+gudhi = "*"
+giotto-tda = "*"
+mne = "*"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
