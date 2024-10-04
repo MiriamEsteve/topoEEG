@@ -9,7 +9,7 @@ from read_file import load_all_data
 
 def main():
     # Create object tda
-    tda_obj = tda()
+    tda_obj = tda(n_components=14)
 
     # Step 1: Load EEG Data
     tda_obj.run_analysis()

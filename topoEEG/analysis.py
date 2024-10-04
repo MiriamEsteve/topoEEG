@@ -1,60 +1,56 @@
 import numpy as np
 from read_file import (load_all_data, logging)
 from plotting import (
-    plot_ica, plot_persistence_diagrams, plot_lifetime_diagrams, 
-    plot_persistence_images, plot_classification, plot_evaluation_and_refinement, create_flowchart
+    plot_ica, plot_persistence_landscape, compute_psd_band_power
 )
 from utils import (
-    generate_persistence_diagrams, calculate_lifetime_diagrams, 
-    compute_gudhi_barycenter, perform_classification
+    compute_persistence_diagram, compute_landscape_values, 
+    classify_landscapes
 )
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
+
 import ripser
+import mne
+from mne import EpochsArray, concatenate_raws
+import pandas as pd
 
 class tda:
-    def __init__(self, raw_AD=None, raw_CN=None, raw_FTD=None, n_components=4, random_state=97, max_iter=800):
+    def __init__(self, raw = None, n_components=14, random_state=97, max_iter=100):
         # Now you can work with the loaded data
-        if raw_AD is not None and raw_CN is not None and raw_FTD is not None:
-            self.raw_AD = raw_AD
-            self.raw_CN = raw_CN
-            self.raw_FTD = raw_FTD
+        if raw is not None :
+            self.raw = raw
         else:
-            self.raw_AD, self.raw_CN, self.raw_FTD = load_all_data()
+            self.raw = load_all_data()
         
         # ICA analysis
         self.n_components= n_components
         self.random_state=random_state
         self.max_iter=max_iter
+        self.point_cloud = []
+        self.landscapes = []
 
     def run_analysis(self):
-        plot_ica(self.raw_AD, self.n_components, self.random_state, self.max_iter)
         
-        diagrams = generate_persistence_diagrams(self.datas)
-        plot_persistence_diagrams(diagrams, '2_Persistence_Diagrams.png')
+        #plot_ica(self, self.raw, self.n_components, self.random_state, self.max_iter)
         
-        lifetimes = calculate_lifetime_diagrams(diagrams)
-        plot_lifetime_diagrams(lifetimes, '3_Lifetime_Diagram.png')
-        
-        rips = ripser.Rips(maxdim=1, coeff=2)
-        diagrams_h1 = [rips.fit_transform(data)[1] for data in self.datas]
-        plot_persistence_images(diagrams_h1, '4_Persistence_Images.png')
+        # PSD band power
+        fmin, fmax = 10, 20  # Alpha band 8, 12
+        tmin, tmax = 0, 1000  # First 1000 seconds of the recording 0, 1000
 
-        compute_gudhi_barycenter(diagrams_h1, '5_Calculate_Barycenter.png')
 
-        classifiers = {
-            'Logistic Regression': LogisticRegression(),
-            'Support Vector Machine': SVC(),
-            'Random Forest': RandomForestClassifier(),
-            'Neural Network': MLPClassifier()
-        }
+        for i in range(len(self.raw)):
+            # Compute the point cloud
+            self.point_cloud.append(compute_psd_band_power(str(i), self.raw[i], fmin, fmax, tmin=None, tmax=None))
+            print(self.point_cloud[-1].mean())
+
+            # Compute persistence diagrams
+            diagram = compute_persistence_diagram(self.point_cloud[i])
+            # Define grid and compute landscape values
+            grid = np.linspace(0, np.max(self.point_cloud[i]), 1000)
+            self.landscapes.append(compute_landscape_values(diagram, grid))
+
+            # Plot the persistence landscape
+            plot_persistence_landscape(str(i), grid, self.landscapes[-1])
         
-        for name, clf in classifiers.items():
-            X, y, report = perform_classification(clf)
-            plot_classification(X, y, f'6_Classification_{name.replace(" ", "_")}.png', name)
-            plot_evaluation_and_refinement(report, f'7_Evaluation_and_Refinement_{name.replace(" ", "_")}.png', name)
-
-        create_flowchart()
+        # Classification
+        classify_landscapes(self.landscapes)
 
