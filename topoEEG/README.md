@@ -18,6 +18,7 @@ project/
 ├── setup.py
 └── main.py
 └── README.md
+LICENSE
 ```
 
 ## Installation
