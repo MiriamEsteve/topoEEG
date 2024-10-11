@@ -25,26 +25,28 @@ Requires-Dist: POT
 
 # topoEEG
 
-topoEEG is a Python package designed for 
+topoEEG is a Python-based analytical framework designed to process and analyze EEG data, integrating the MNE library with Topological Deep Learning (TDL) methods. This package is tailored for advanced neuroimaging research, particularly in exploring neurodegenerative conditions like Alzheimerâ€™s disease, by capturing deeper insights into the underlying neural structures that traditional techniques may miss.
+
 
 ## Project Structure
-project/
-â”œâ”€â”€ topoEEG/
-â”‚ â”œâ”€â”€ init.py
-â”‚ â”œâ”€â”€ analysis.py
-â”‚ â”œâ”€â”€ data.py
-â”‚ â”œâ”€â”€ plotting.py
-â”‚ â””â”€â”€ utils.py
-â”œâ”€â”€ pyproject.toml
+```
+topoEEG/
+â”œâ”€â”€ data/
+â”œâ”€â”€ test/
+â”œ   â”œâ”€â”€ test.py
+â”œâ”€â”€ Figures/
+â”œâ”€â”€ init.py
+â”œâ”€â”€ analysis.py
+â”œâ”€â”€ data.py
+â”œâ”€â”€ plotting.py
+â””â”€â”€ utils.py
+â”œâ”€â”€ setup.py
 â””â”€â”€ main.py
+â””â”€â”€ README.md
+LICENSE
+```
 
 ## Installation
-
-### Prerequisites
-
-Ensure you have Python installed. It's recommended to use a virtual environment to manage dependencies.
-
-Install 'poetry'. Then, execute 'poetry add requests' to install dependencies.
 
 ### Clone the Repository
 
@@ -59,6 +61,7 @@ Install the required dependencies using pip.
 ```bash
 pip install numpy matplotlib scipy scikit-learn persim ripser gudhi giotto-tda POT datalad
 ```
+
 ## Project Setup
 Ensure your directory structure looks like the above structure.
 
@@ -70,77 +73,80 @@ python test.py
 
 This will execute each step of the analysis independently and save the corresponding images in the project directory.
 
-### Functions
 
-#### Step 1: Plot Trajectory Data
+## Step 1: Initialize the topoEEG Object
 ```python
-    
-    # Step 1: Plot Trajectory Data
-    data_gen = SimulatedTrajectoryData()
-    brownian_data = data_gen.brownian_motion()
-    levy_data = data_gen.levy_flight()
-    spiral_data = data_gen.spiral_trajectory()
-    circular_data = data_gen.circular_trajectory()
-
-    # Plotting example trajectories
-    plot_trajectories(brownian_data, 'Trajectory_Brownian_Motion', '1_Load_Trajectory_Brownian_Motion.png')
-    plot_trajectories(levy_data, 'Trajectory_Levy_Flight', '1_Load_Trajectory_Levy_Flight.png')
-    plot_trajectories(spiral_data, 'Trajectory_Spiral', '1_Load_Trajectory_Spiral.png')
-    plot_trajectories(circular_data, 'Trajectory_Circular', '1_Load_Trajectory_Circular.png')
-    ```
-
-#### Step 2: Generate Persistence Diagrams
-```python
-# Initialize the TrajectoryAnalysis class
-analysis = TrajectoryAnalysis()
-    
-diagrams = generate_persistence_diagrams(analysis.datas)
-plot_persistence_diagrams(diagrams, '2_Persistence_Diagrams.png')
-```
-
-#### Step 3: Calculate and Plot Lifetime Diagrams
-```python
-lifetimes = calculate_lifetime_diagrams(diagrams)
-plot_lifetime_diagrams(lifetimes, '3_Lifetime_Diagram.png')
-```
-
-#### Step 4: Generate Persistence Images
-```python
-rips_instance = ripser.Rips(maxdim=1, coeff=2)
-diagrams_h1 = [rips_instance.fit_transform(data)[1] for data in analysis.datas]
-plot_persistence_images(diagrams_h1, '4_Persistence_Images.png')
-```
-
-#### Step 5: Compute and Plot Barycenter
-```python
-compute_gudhi_barycenter(diagrams_h1, '5_Calculate_Barycenter.png')
-```
-
-#### Step 6: Perform Classification with Different Models
-```python
-classifiers = {
-    'Logistic Regression': LogisticRegression(max_iter=1000),
-    'Support Vector Machine': SVC(),
-    'Random Forest': RandomForestClassifier(),
-    'Neural Network': MLPClassifier(max_iter=2000)  # Increased max_iter to 2000
-}
-
-for name, clf in classifiers.items():
-    X, y, report = perform_classification(clf)
-    plot_classification(X, y, f'6_Classification_{name.replace(" ", "_")}.png', name)
-    plot_evaluation_and_refinement(report, f'7_Evaluation_and_Refinement_{name.replace(" ", "_")}.png', name)
+    # Initialize the topoEEG object with raw EEG data
+    topoEEG_obj = tda(raw = None, n_components=14, random_state=97, max_iter=100, grid_size = 10000)
 
 ```
+In this step, the raw EEG data is loaded into the topoEEG object. The data format should be compatible with EEG file types like .set.
 
-#### Step 7: Create Flowchart
+The topoEEG object is created, where:
+- raw: The input EEG data (can be loaded later).
+- n_components: Number of components to use in ICA (Independent Component Analysis).
+- random_state: Sets the random seed for reproducibility.
+- max_iter: Number of iterations for convergence in ICA.
+- grid_size: Defines the grid resolution for persistence landscape computation.
+
+
+## Step 2: Perform ICA (Independent Component Analysis)
 ```python
-create_flowchart()
+    # Perform ICA to remove artifacts like eye blinks and muscle noise
+    topoEEG_obj.compute_ica()
 ```
+ICA is used to separate noise sources from the EEG signal, specifically removing artifacts like eye blinks and muscle movements
+
+## Step 3: Compute Power Spectral Density (PSD) Band Power
+```python
+    fmin, fmax = 10, 20
+    topoEEG_obj.point_cloud = []
+
+    for i in range(len(topoEEG_obj.raw)):
+        topoEEG_obj.point_cloud.append(
+            topoEEG_obj.compute_psd_band_power(str(i), topoEEG_obj.raw[i], fmin, fmax)
+        )
+```
+The PSD (Power Spectral Density) is calculated for each EEG channel.
+
+- fmin and fmax represent the frequency range to focus on (e.g., 10â€“20 Hz).
+- For each EEG channel, the function compute_psd_band_power() computes the PSD values within this frequency range.
+
+
+## Step 4: Compute Persistence Diagram
+```python
+diagram = topoEEG_obj.compute_persistence_diagram(topoEEG_obj.point_cloud[i])
+```
+
+The persistence diagram is computed from the PSD point cloud, providing a topological representation of the data. This step highlights key features in the data that may not be visible through traditional methods.
+
+## Step 5: Compute Persistence Landscape Values
+```python
+grid = np.linspace(0, np.max(topoEEG_obj.point_cloud[i]), topoEEG_obj.grid_size)
+topoEEG_obj.landscapes = topoEEG_obj.compute_landscape_values(diagram, grid)
+```
+
+The persistence landscape is calculated from the persistence diagram. The landscape transforms topological features into a format suitable for machine learning models.
+
+## Step 6: Plot Persistence Landscape
+```python
+topoEEG_obj.plot_persistence_landscape(topoEEG_obj.landscapes)
+```
+
+Visualize the persistence landscape, which provides a clearer view of topological features extracted from the EEG data.
+
+## Step 7: Classify Landscapes
+```python
+topoEEG_obj.classify_landscapes()
+```
+
+Finally, classify the landscapes using machine learning models such as Support Vector Machines (SVM), Random Forest, Logistic Regression, and Neural Networks.
+
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
-- The TDA tutorial for inspiration on using Gudhi for barycenter calculations.
+- The TDA tutorial for inspiration on using Gudhi for lanscape calculations.
 - The Scikit-learn library for providing powerful machine learning tools.
 - A. Falco and M. Esteve thank the grant TED2021-129347B-C22 funded by Ministerio de Ciencia e InnovaciÃ³n/ Agencia Estatal de InvestigaciÃ³n

@@ -1,5 +1,6 @@
 README.md
 setup.py
+tests/test.py
 topoEEG.egg-info/PKG-INFO
 topoEEG.egg-info/SOURCES.txt
 topoEEG.egg-info/dependency_links.txt
