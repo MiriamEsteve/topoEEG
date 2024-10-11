@@ -8,11 +8,29 @@ import ripser
 from read_file import load_all_data
 
 def main():
-    # Create object tda
-    tda_obj = tda(n_components=14)
+    # Step 1: Create object tda
+    tda_obj = tda(raw = None, n_components=14, random_state=97, max_iter=100, grid_size = 10000)
 
-    # Step 1: Load EEG Data
-    tda_obj.run_analysis()
+    # Step 2: Compute ICA
+    tda_obj.compute_ica(tda_obj)
+
+    # Step 3: Compute PSD band power
+    tda_obj.compute_psd_band_power(tda_obj)
+
+    # Step 4: Compute persistence diagram
+    tda_obj.compute_persistence_diagram(tda_obj)
+
+    # Step 5: Compute landscape values
+    tda_obj.compute_landscape_values(tda_obj)
+
+    # Step 6: Plot persistence landscape
+    tda_obj.plot_persistence_landscape(tda_obj)
+
+    # Step 7: Classify landscapes
+    tda_obj.classify_landscapes(tda_obj)
+
+    # Step All
+    #tda_obj.run_analysis()
 
 
 
