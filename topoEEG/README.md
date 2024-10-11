@@ -5,7 +5,7 @@ topoEEG is a Python-based analytical framework designed to process and analyze E
 
 ## Project Structure
 ```
-project/
+topoEEG/
 ├── data/
 ├── test/
 ├   ├── test.py
