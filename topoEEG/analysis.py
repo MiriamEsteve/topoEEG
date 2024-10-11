@@ -56,13 +56,13 @@ class tda:
         classify_landscapes(self.landscapes)
 
         # Calculate Wasserstein distance
-        distance_matrix = wassertein_distance(self.point_cloud)
+        #distance_matrix = wassertein_distance(self.point_cloud)
         # If you have labels or identifiers for each diagram, it would be useful to use them as index and column names in the DataFrame
-        labels = [f"Diagram {i}" for i in range(len(distance_matrix))]
+        #labels = [f"Diagram {i}" for i in range(len(distance_matrix))]
 
         # Convert to DataFrame
-        df = pd.DataFrame(distance_matrix, index=labels, columns=labels)
-        df.to_csv("./Figures/persistence_diagrams_distances.csv", index=True)
+        #df = pd.DataFrame(distance_matrix, index=labels, columns=labels)
+        #df.to_csv("./Figures/persistence_diagrams_distances.csv", index=True)
 
     def compute_ica(self, raw = None, n_components=14, random_state=97, max_iter=100):
         """
