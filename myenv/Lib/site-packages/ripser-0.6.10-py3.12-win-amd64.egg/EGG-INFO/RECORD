@@ -1,0 +1,13 @@
+pyRipser.cp312-win_amd64.pyd,sha256=4_mRmTOFERO4FvcUD0jyuPfGCf5Bv1Gr6KLE51XBVUQ,130560
+ripser/__init__.py,sha256=aFjkKd9G_oZYT0KStxm_hed1bhxnQufc-NurT7Rx-Ys,60
+ripser/_version.py,sha256=tMZ02UHMWmC0ItYW0omPw4lyvjSC5HUPFFtMPFFUrGI,24
+ripser/pyRips.pxd,sha256=oD28akW6R_RAzFZvaCr9nkFXY5KweL2zFfMPbFjq7v0,980
+ripser/pyRipser.cpp,sha256=nbJxezuIfyCPcpfWEd72qHa697qxMSsWcyF5zkyxWkU,450113
+ripser/pyRipser.pyx,sha256=fT-PwKaTWnSCqTWy55RwkvoAZ0IopQS2PQKCSDLKPHw,866
+ripser/ripser.cpp,sha256=fZnrBZ66V7cBsUixmRhFe9M_xPYFHgtGjy0hE-I-PFU,47503
+ripser/ripser.py,sha256=UigAwPa03jATn-skBgJExGl2qza2UpUnrTwW2aqwzHY,24143
+ripser-0.6.10.dist-info/LICENSE.txt,sha256=x3YcyvlCg-9NMKJJxQ6Fqd9w7w2w0yUjJ2g79F3iwE0,1215
+ripser-0.6.10.dist-info/METADATA,sha256=PlYpZtaKfj5PBKWjAlB1_iqVkgZdcLf0gS7bAFCwCYQ,8735
+ripser-0.6.10.dist-info/WHEEL,sha256=zUKlehupiwlnUEPaWzoeU3i_GPyMnWLKYSUI9sqi8Vs,101
+ripser-0.6.10.dist-info/top_level.txt,sha256=KyXYJan1pYokhD9K-usZAnF6T8ApuC0xM3MtMU83LSo,16
+ripser-0.6.10.dist-info/RECORD,,

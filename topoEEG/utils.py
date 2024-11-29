@@ -42,6 +42,7 @@ def compute_persistence_diagram(point_cloud):
     filtered_diagram = [(birth, death) for birth, death in persistence_diagram if death != float('inf')]
     
     return filtered_diagram
+
 import numpy as np
 
 def compute_landscape_values(diag, grid):

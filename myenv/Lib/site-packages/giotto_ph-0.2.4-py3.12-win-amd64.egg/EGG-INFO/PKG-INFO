@@ -1,0 +1,62 @@
+Metadata-Version: 2.1
+Name: giotto-ph
+Version: 0.2.4
+Summary: High performance tool for Persistent Homology computations.
+Home-page: https://github.com/giotto-ai/giotto-ph
+Download-URL: https://github.com/giotto-ai/giotto-ph/tarball/v0.2.4
+Maintainer: Julián Burella Pérez and Umberto Lupo
+Maintainer-email: maintainers@giotto.ai
+License: GNU AGPLv3
+Keywords: machine learning,topological data analysis,persistent homology
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development
+Classifier: Topic :: Scientific/Engineering
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: numpy >=1.19.1
+Requires-Dist: scipy >=1.5.0
+Requires-Dist: scikit-learn >=0.23.1
+Provides-Extra: dev
+Requires-Dist: pytest-benchmark ; extra == 'dev'
+Requires-Dist: pytest-azurepipelines ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: numpydoc ; extra == 'dev'
+Requires-Dist: sphinx ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme ; extra == 'dev'
+Requires-Dist: jupyter-contrib-nbextensions ; extra == 'dev'
+Requires-Dist: nbconvert ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: hypothesis ; extra == 'dev'
+Requires-Dist: sphinx-issues ; extra == 'dev'
+Provides-Extra: doc
+Requires-Dist: sphinx ; extra == 'doc'
+Requires-Dist: nbconvert ; extra == 'doc'
+Requires-Dist: sphinx-issues ; extra == 'doc'
+Requires-Dist: sphinx-rtd-theme ; extra == 'doc'
+Requires-Dist: numpydoc ; extra == 'doc'
+Provides-Extra: examples
+Requires-Dist: jupyter ; extra == 'examples'
+Provides-Extra: tests
+Requires-Dist: pytest ; extra == 'tests'
+Requires-Dist: pytest-cov ; extra == 'tests'
+Requires-Dist: pytest-azurepipelines ; extra == 'tests'
+Requires-Dist: pytest-benchmark ; extra == 'tests'
+Requires-Dist: jupyter-contrib-nbextensions ; extra == 'tests'
+Requires-Dist: flake8 ; extra == 'tests'
+Requires-Dist: hypothesis ; extra == 'tests'
+
+giotto-ph at https://github.com/giotto-ai/giotto-ph

@@ -1,0 +1,2 @@
+Version: 1.6.0
+Arguments: ['C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-0ptw9b9x\\cp312-win_amd64\\build\\venv\\Scripts\\delvewheel', 'repair', '-vv', '-w', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-0ptw9b9x\\cp312-win_amd64\\repaired_wheel', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-0ptw9b9x\\cp312-win_amd64\\built_wheel\\pyflagser-0.4.7-cp312-cp312-win_amd64.whl']

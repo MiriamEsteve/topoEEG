@@ -1,0 +1,5 @@
+narwhals>=1.13.3
+packaging
+
+[express]
+numpy

@@ -14,7 +14,7 @@ from mne import EpochsArray, concatenate_raws
 import pandas as pd
 
 class tda:
-    def __init__(self, raw = None, n_components=14, random_state=97, max_iter=100, grid_size = 10000):
+    def __init__(self, raw = None, n_components=10, random_state=97, max_iter=100, grid_size = 10000):
         # Now you can work with the loaded data
         if raw is not None :
             self.raw = raw
@@ -83,7 +83,7 @@ class tda:
         else:
             self.raw = load_all_data()
 
-        plot_ica(self, raw, n_components, random_state, max_iter)
+        plot_ica(self.raw, self.n_components, self.random_state, self.max_iter)
 
 
     def compute_psd_band_power(self, subj, raw, fmin=10, fmax=20):
@@ -94,17 +94,10 @@ class tda:
         - subj: Subject identifier.
         - raw: raw EEGLAB .set file.
         - fmin, fmax: Frequency band limits for the calculation of mean PSD (in Hz).
-        - tmin, tmax: Time range within the EEG recording to consider (in seconds).
 
         Returns:
         - A vector of mean PSD band power values for each channel.
         """
-        # Now you can work with the loaded data
-        if raw is not None :
-            self.raw = raw
-        else:
-            self.raw = load_all_data()
-
         # Pick types of channels to include in the analysis (e.g., EEG channels)
         picks = self.raw.pick_types(eeg=True, meg=False, stim=False)
         

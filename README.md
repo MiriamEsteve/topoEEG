@@ -34,7 +34,8 @@ cd topoEEG
 Install the required dependencies using pip.
 
 ```bash
-pip install numpy matplotlib scipy scikit-learn persim ripser gudhi giotto-tda POT datalad
+# pip install numpy matplotlib scipy scikit-learn persim ripser gudhi giotto-tda POT datalad
+python ./topoEEG/setup.py install
 ```
 
 ## Project Setup

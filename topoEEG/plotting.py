@@ -7,38 +7,45 @@ import mne
 import matplotlib.pyplot as plt
 from mne.datasets import fetch_dataset
 from sklearn.metrics import confusion_matrix
+import os
+import mne
 
-def plot_ica(self, raw, n_components, random_state, max_iter):
+def plot_ica(raw, n_components, random_state, max_iter):
     """
-    Function to load and plot EEG data from OpenNeuro.
+    Function to apply ICA and plot EEG components from MNE Raw object.
 
     Parameters:
-    - raw: MNE Raw object
+    - raw: MNE Raw object or list of Raw objects
+    - n_components: Number of ICA components to compute
+    - random_state: Random seed for reproducibility
+    - max_iter: Maximum number of iterations for ICA fitting
     
     Returns:
-    - Plot of the ICA components.
-    
-    The function will search for EEG files in BIDS format and plot the data.
+    - Saves ICA component plots to './Figures/ica/' directory.
     """
+    # Create the directory to save the ICA plots if it doesn't exist
     if not os.path.exists('./Figures/ica/'):
         os.makedirs('./Figures/ica/')
 
-    #ICA EEG data
-    self.ica = []
+    # Loop over each raw EEG data (if multiple subjects)
+    for i, raw_data in enumerate(raw):
+        # Apply high-pass filter before ICA (recommended for ICA)
+        raw_data_filtered = raw_data.filter(l_freq=1.0, h_freq=None)
 
-    for i in range(len(raw)):
-        # set up and fit the ICA
-        self.ica.append(mne.preprocessing.ICA(n_components=n_components, random_state=random_state, max_iter=max_iter))
-        self.ica[-1].fit(raw[i])
+        # Set up and fit ICA
+        ica = mne.preprocessing.ICA(n_components=n_components, random_state=random_state, max_iter=max_iter)
+        ica.fit(raw_data_filtered)
 
-        figs = self.ica[-1].plot_properties(raw[i], show=False) #, picks=ica.exclude
-        for idx, fig2 in enumerate(figs):
-            fname = f'./Figures/ica/ica_subj{i}_component{idx}.png'
-            fig2.savefig(fname)
-
-        # fig.grab().save('screenshot_full.png')
-        print("-----------------------------------------------> ICA -> saved Fig" + str(i))
+        # Plot ICA component properties
+        figs = ica.plot_properties(raw_data_filtered, show=False)  # Use filtered data for ICA
         
+        # Save each component plot to a PNG file
+        for idx, fig in enumerate(figs):
+            fname = f'./Figures/ica/ica_subj{i}_component{idx}.png'
+            fig.savefig(fname)
+
+        print(f"-----------------------------------------------> ICA -> saved Fig for subject {i}")
+
 
 def compute_psd_band_power(subj, raw, fmin, fmax, tmin=None, tmax=None):
     """

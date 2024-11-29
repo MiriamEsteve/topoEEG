@@ -1,0 +1,12 @@
+platformdirs>=2.5.0
+packaging>=20.0
+requests>=2.19.0
+
+[progress]
+tqdm<5.0.0,>=4.41.0
+
+[sftp]
+paramiko>=2.7.0
+
+[xxhash]
+xxhash>=1.4.3

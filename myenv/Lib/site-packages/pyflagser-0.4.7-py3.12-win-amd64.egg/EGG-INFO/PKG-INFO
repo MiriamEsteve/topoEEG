@@ -1,0 +1,156 @@
+Metadata-Version: 2.1
+Name: pyflagser
+Version: 0.4.7
+Summary: Python bindings for the flagser C++ library.
+Home-page: https://github.com/giotto-ai/pyflagser
+Download-URL: https://github.com/giotto-ai/pyflagser/tarball/v0.4.7
+Maintainer: Guillaume Tauzin, Umberto Lupo
+Maintainer-email: maintainers@giotto.ai
+License: GNU AGPLv3
+Keywords: topological data analysis,persistent homology,directed flags complex,persistence diagrams
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development
+Classifier: Topic :: Scientific/Engineering
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: numpy >=1.17.0
+Requires-Dist: scipy >=0.17.0
+Provides-Extra: doc
+Requires-Dist: sphinx ; extra == 'doc'
+Requires-Dist: sphinx-gallery ; extra == 'doc'
+Requires-Dist: sphinx-issues ; extra == 'doc'
+Requires-Dist: sphinx-rtd-theme ; extra == 'doc'
+Requires-Dist: numpydoc ; extra == 'doc'
+Provides-Extra: tests
+Requires-Dist: pytest ; extra == 'tests'
+Requires-Dist: pytest-timeout ; extra == 'tests'
+Requires-Dist: pytest-cov ; extra == 'tests'
+Requires-Dist: pytest-azurepipelines ; extra == 'tests'
+Requires-Dist: pytest-benchmark ; extra == 'tests'
+Requires-Dist: flake8 ; extra == 'tests'
+
+.. image:: https://raw.githubusercontent.com/giotto-ai/pyflagser/master/doc/images/Giotto_logo_RGB.svg
+   :width: 590
+
+|wheels|_ |ci|_ |Twitter-follow|_ |Slack-join|_
+
+.. |wheels| image:: https://github.com/giotto-ai/pyflagser/actions/workflows/wheels.yml/badge.svg
+.. _wheels:
+
+.. |ci| image:: https://github.com/giotto-ai/pyflagser/actions/workflows/ci.yml/badge.svg
+.. _ci:
+
+.. |Twitter-follow| image:: https://img.shields.io/twitter/follow/giotto_ai?label=Follow%20%40giotto_ai&style=social
+.. _Twitter-follow: https://twitter.com/intent/follow?screen_name=giotto_ai
+
+.. |Slack-join| image:: https://img.shields.io/badge/Slack-Join-yellow
+.. _Slack-join: https://slack.giotto.ai/
+
+=========
+pyflagser
+=========
+
+``pyflagser`` is a python API for the flagser C++ library by Daniel Lütgehetmann which computes the homology of directed flag complexes. Please check out the original `luetge/flagser <https://github.com/luetge/flagser>`_ GitHub repository for more information.
+
+Project genesis
+---------------
+
+``pyflagser`` is the result of a collaborative effort between `L2F SA <https://www.l2f.ch/>`_, the `Laboratory for Topology and Neuroscience <https://www.epfl.ch/labs/hessbellwald-lab/>`_ at EPFL, and the `Institute of Reconfigurable & Embedded Digital Systems (REDS) <https://heig-vd.ch/en/research/reds>`_ of HEIG-VD.
+
+Installation
+------------
+
+Dependencies
+~~~~~~~~~~~~
+
+``pyflagser`` requires:
+
+- Python (>= 3.8)
+- NumPy (>= 1.17.0)
+- SciPy (>= 0.17.0)
+
+User installation
+~~~~~~~~~~~~~~~~~
+
+If you already have a working installation of numpy and scipy, the easiest way to install pyflagser is using ``pip``   ::
+
+    python -m pip install -U pyflagser
+
+Documentation
+-------------
+
+API reference (stable release): https://docs-pyflagser.giotto.ai
+
+Contributing
+------------
+
+We welcome new contributors of all experience levels. The Giotto community goals are to be helpful, welcoming, and effective. To learn more about making a contribution to ``pyflagser``, please see the `CONTRIBUTING.rst <https://github.com/giotto-ai/pyflagser/blob/master/CONTRIBUTING.rst>`_ file.
+
+Developer installation
+~~~~~~~~~~~~~~~~~~~~~~
+
+C++ dependencies:
+'''''''''''''''''
+
+-  C++14 compatible compiler
+-  CMake >= 3.9
+
+Source code
+'''''''''''
+
+You can check the latest sources with the command::
+
+    git clone https://github.com/giotto-ai/pyflagser.git
+
+
+To install:
+'''''''''''
+
+From the cloned repository's root directory, run
+
+.. code-block:: bash
+
+   python -m pip install -e ".[tests]"
+
+This way, you can pull the library's latest changes and make them immediately available on your machine.
+
+Testing
+'''''''
+
+After installation, you can launch the test suite from outside the source directory::
+
+    pytest pyflagser
+
+
+Changelog
+---------
+
+See the `RELEASE.rst <https://github.com/giotto-ai/pyflagser/blob/master/RELEASE.rst>`__ file
+for a history of notable changes to pyflagser.
+
+Important links
+~~~~~~~~~~~~~~~
+
+- Official source code repo: https://github.com/giotto-ai/pyflagser
+- Download releases: https://pypi.org/project/pyflagser/
+- Issue tracker: https://github.com/giotto-ai/pyflagser/issues
+
+
+Contacts:
+---------
+
+maintainers@giotto.ai
