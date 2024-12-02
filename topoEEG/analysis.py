@@ -5,13 +5,9 @@ from plotting import (
 )
 from utils import (
     utils_compute_persistence_diagram, compute_landscape_values, 
-    classify_landscapes, wassertein_distance
+    classify_landscapes
 )
-
-import ripser
-import mne
-from mne import EpochsArray, concatenate_raws
-import pandas as pd
+import concurrent.futures
 
 class tda:
     def __init__(self, raw = None, n_components=10, random_state=97, max_iter=1000, grid_size = 10000, fmin=1, fmax=30, tmin=0, tmax=60):
@@ -74,11 +70,15 @@ class tda:
         Returns:
         - Persistence diagram (list of birth-death pairs).
         """
-        # Compute persistence diagrams
-        diagram = utils_compute_persistence_diagram(self.point_cloud[-1])
+        # Step 1: Compute persistence diagrams in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            persistence_diagrams = list(executor.map(utils_compute_persistence_diagram, self.point_clouds))
 
-        value = compute_landscape_values(diagram, grid)
-        return value * (10**20)  # Correct exponentiation
+        # Step 2: Compute landscape values for each persistence diagram
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            landscape_values = list(executor.map(lambda diag: compute_landscape_values(diag, grid), persistence_diagrams))
+
+        return landscape_values * (10**20)
     
     def plot_persistence_landscape(self, subj, grid, landscape):
         plot_persistence_landscape(subj, grid, landscape)
@@ -107,9 +107,10 @@ class tda:
             # Define grid and compute landscape values
             grid = np.linspace(0, np.max(self.point_cloud[-1]), self.grid_size)
 
-            # Compute persistence diagram
-            self.landscapes.append(self.compute_persistence_diagram(grid))
+        # Compute persistence diagram
+        self.landscapes = self.compute_persistence_diagram(grid)
             
+        for i in range(len(self.landscapes)):
             # Plot the persistence landscape
             self.plot_persistence_landscape(str(i), grid, self.landscapes[-1])
         
