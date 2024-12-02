@@ -1,53 +1,99 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from persim import plot_diagrams, PersistenceImager
-from PIL import Image
-import os
-import mne
+import matplotlib
+matplotlib.use('Agg')  # Set non-GUI backend
 import matplotlib.pyplot as plt
 from mne.datasets import fetch_dataset
 from sklearn.metrics import confusion_matrix
 import os
 import mne
+from mne.preprocessing import ICA
+from concurrent.futures import ThreadPoolExecutor
+import os
 
-def plot_ica(raw, n_components, random_state, max_iter):
+# Set log level to 'warning' to suppress less critical messages
+mne.set_log_level('warning')
+
+def apply_ica(raw, n_components, random_state, max_iter, subject_idx, fmin=1.0, fmax=30.0, tmin=0, tmax=60):
     """
-    Function to apply ICA and plot EEG components from MNE Raw object.
-
-    Parameters:
-    - raw: MNE Raw object or list of Raw objects
-    - n_components: Number of ICA components to compute
-    - random_state: Random seed for reproducibility
-    - max_iter: Maximum number of iterations for ICA fitting
+    Helper function to apply ICA to a single subject's data.
+    """
+    # Reduce sampling frequency to 100 Hz
+    raw.resample(sfreq=100)
+    raw.pick_types(eeg=True)
     
-    Returns:
-    - Saves ICA component plots to './Figures/ica/' directory.
+    # Use the first 60 seconds of the data
+    raw_filtered = raw.copy().crop(tmin=tmin, tmax=tmax)
+
+    # Apply high-pass filter (recommended for ICA)
+    raw_filtered.filter(l_freq=fmin, h_freq=fmax)
+
+    # Ensure n_components doesn't exceed the number of available channels
+    n_components = min(n_components, len(raw_filtered.info['ch_names']))
+
+    # Set up and fit ICA
+    ica = ICA(n_components=n_components, random_state=random_state, max_iter=max_iter)
+    ica.fit(raw_filtered)
+
+    # Exclude artifact components based on custom criteria
+    components = ica.get_components()
+    for idx, component in enumerate(components):
+        peak_to_peak = component.max() - component.min()
+        threshold_value = 200e-6  # Example threshold for exclusion
+        if peak_to_peak > threshold_value and idx < n_components:
+            ica.exclude.append(idx)
+    print(f" ----- Excluded indices: {ica.exclude}")
+    print(f"------ Number of ICA components: {ica.n_components_}")
+
+    # Apply ICA to clean the data
+    raw_cleaned = ica.apply(raw_filtered)
+
+    print(f"Subject {subject_idx+1}: ICA applied successfully.")
+
+    # Plot ICA component properties
+    try:
+        figs = ica.plot_properties(raw_cleaned, show=False, picks=range(10))
+    except IndexError as e:
+        print(f"Error plotting ICA properties for Subject {subject_idx+1}: {e}")
+        print(f"Excluded components: {ica.exclude}")
+        print(f"Number of ICA components: {ica.n_components_}")
+        raise e
+
+    # Save plots for ICA components
+    for idx, fig in enumerate(figs):
+        fname = f'./Figures/ica/ica_subj{subject_idx+1}_component{idx}.png'
+        fig.savefig(fname)
+        plt.close(fig)  # Close the figure after saving
+
+    # Reset the exclusion list for the next subject
+    ica.exclude = []
+
+    print(f"Subject {subject_idx+1}: ICA components saved.")
+    return subject_idx, ica, raw_cleaned
+
+
+def plot_ica(raw_list, n_components, random_state, max_iter):
     """
-    # Create the directory to save the ICA plots if it doesn't exist
+    Function to apply ICA and plot EEG components for each subject from a list of MNE Raw objects in parallel.
+    """
+    # Create directory for saving plots if not already present
     if not os.path.exists('./Figures/ica/'):
         os.makedirs('./Figures/ica/')
 
-    # Loop over each raw EEG data (if multiple subjects)
-    for i, raw_data in enumerate(raw):
-        # Apply high-pass filter before ICA (recommended for ICA)
-        raw_data_filtered = raw_data.filter(l_freq=1.0, h_freq=None)
+    # Use ProcessPoolExecutor for ICA computation to take advantage of multiple cores
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(apply_ica, raw, n_components, random_state, max_iter, idx)
+            for idx, raw in enumerate(raw_list)
+        ]
+        results = [future.result() for future in futures]  # Wait for all tasks to finish
 
-        # Set up and fit ICA
-        ica = mne.preprocessing.ICA(n_components=n_components, random_state=random_state, max_iter=max_iter)
-        ica.fit(raw_data_filtered)
+    print("ICA processing for all subjects completed.")
 
-        # Plot ICA component properties
-        figs = ica.plot_properties(raw_data_filtered, show=False)  # Use filtered data for ICA
-        
-        # Save each component plot to a PNG file
-        for idx, fig in enumerate(figs):
-            fname = f'./Figures/ica/ica_subj{i}_component{idx}.png'
-            fig.savefig(fname)
-
-        print(f"-----------------------------------------------> ICA -> saved Fig for subject {i}")
+    # Return cleaned data for all subjects
+    return [result[2] for result in results]
 
 
-def compute_psd_band_power(subj, raw, fmin, fmax, tmin=None, tmax=None):
+def plot_psd_band_power(subj, raw, fmin=1, fmax=30, tmin=0, tmax=60):
     """
     Computes mean power spectral density (PSD) band power for each channel in an EEGLAB file.
 
@@ -63,24 +109,24 @@ def compute_psd_band_power(subj, raw, fmin, fmax, tmin=None, tmax=None):
     if not os.path.exists('./Figures/psd/'):
         os.makedirs('./Figures/psd/')
 
-    # If a time range is specified, crop the data to this range
-    if tmin is not None and tmax is not None:
-        raw.crop(tmin=tmin, tmax=tmax)
-    
-    # Pick types of channels to include in the analysis (e.g., EEG channels)
-    picks = raw.pick_types(eeg=True, meg=False, stim=False)
-    
     # Compute the Power Spectral Density (PSD) for each channel using Welch's method
-    psds = raw.compute_psd(method="welch", fmin=fmin, fmax=fmax)
+    psds = raw.compute_psd(method="welch", fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax,        
+                            n_fft=4096,      # Increase FFT points for higher frequency resolution
+                            n_overlap=2048,  # Overlap for better averaging
+                            window="hamming" # Window function for spectral leakage control
+                        )
     # Plotting
     fig = psds.plot()
     fig.savefig('./Figures/psd/psd_subj' + subj + '.png')
 
-    # Extract the PSD data and frequency values
-    psds, freqs = psds.get_data(return_freqs=True)
+    # Extract the PSD data (shape = n_channels, n_frequencies)
+    psds_data = psds.get_data()  # Shape: (n_channels, n_frequencies)
+    
+    # Now, create the point cloud as the PSD data for each channel
+    # The point cloud should be the PSD across all frequencies for each channel
+    point_cloud = psds_data.T  # Transpose to (n_frequencies, n_channels)
 
-    point_cloud = psds.T
-
+    # Print shape of the point cloud for verification
     print("Point cloud shape:", point_cloud.shape)
 
     return point_cloud

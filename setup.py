@@ -22,8 +22,9 @@ setup(
         "ripser",
         "gudhi",
         "giotto-tda",
-        "mne",
-        "POT"
+        "mne>=0.23.0",
+        "POT",
+        "concurrent.futures"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

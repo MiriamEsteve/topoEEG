@@ -11,6 +11,7 @@ from gtda.homology import VietorisRipsPersistence
 from persim import PersLandscapeExact
 import matplotlib.pyplot as plt
 import gudhi as gd
+import mne
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -20,11 +21,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from persim import PersLandscapeExact
 from plotting import (
-    plot_confusion_matrix, plot_classification, plot_evaluation_and_refinement
+    plot_classification, plot_evaluation_and_refinement
 )
+import numpy as np
 
-# Compute persistence diagram
-def compute_persistence_diagram(point_cloud):
+def utils_compute_persistence_diagram(self, point_cloud):
     """
     Computes the persistence diagram from a point cloud using GUDHI's Rips complex.
     
@@ -42,8 +43,6 @@ def compute_persistence_diagram(point_cloud):
     filtered_diagram = [(birth, death) for birth, death in persistence_diagram if death != float('inf')]
     
     return filtered_diagram
-
-import numpy as np
 
 def compute_landscape_values(diag, grid):
     """
