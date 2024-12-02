@@ -1,17 +1,10 @@
 import numpy as np
-import ripser
-import gudhi
-from gudhi.wasserstein.barycenter import lagrangian_barycenter as bary
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
-from scipy.stats import wasserstein_distance
+from sklearn.metrics import classification_report, accuracy_score
 from gtda.homology import VietorisRipsPersistence
 from persim import PersLandscapeExact
 import matplotlib.pyplot as plt
 import gudhi as gd
-import mne
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -25,7 +18,7 @@ from plotting import (
 )
 import numpy as np
 
-def utils_compute_persistence_diagram(self, point_cloud):
+def utils_compute_persistence_diagram(point_cloud):
     """
     Computes the persistence diagram from a point cloud using GUDHI's Rips complex.
     
@@ -78,48 +71,6 @@ def generate_labels():
     labels = ['AD'] * 36 + ['CN'] * 30 + ['FTD'] * 22
     return np.array(labels)
 
-# Function to perform classification
-def perform_classification(clf, X, y):
-    """
-    Fits the classifier and returns predictions and evaluation report.
-    
-    Parameters:
-    - clf: The classifier to be used.
-    - X: Feature matrix (input data).
-    - y: Target labels (output data).
-    
-    Returns:
-    - X: Feature matrix.
-    - y: Target labels.
-    - report: Classification report.
-    """
-    # Split the dataset into training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=46)
-
-    # Fit the classifier
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-
-    # Create a classification report
-    report = classification_report(y_test, y_pred, output_dict=True)
-
-    return X, y, report
-
-
-## Calculate Wassertein distance
-def wassertein_distance(diagrams):
-    # Calculate the Wasserstein distance for the 1-dimensional homology (H1) features, which typically represent loops
-    n = len(diagrams)  # Number of diagrams
-    distance_matrix = np.zeros((n, n))  # Initialize distance matrix
-    
-    # Calculate pairwise Wasserstein distances
-    for i in range(n):
-        for j in range(i+1, n):  # No need to compute distance from a diagram to itself, or to compute twice
-            distance = wasserstein_distance(diagrams[i][1], diagrams[j][1])  # [1] for H1 features, change as needed
-            distance_matrix[i, j] = distance_matrix[j, i] = distance  # Symmetric matrix
-    return(distance_matrix)
-
-
 def classify_landscapes(landscapes):
     # Generate labels ("AD", "CN", "FTD")
     y_str = generate_labels()  # You can define this function to return your labels.
@@ -166,6 +117,15 @@ def classify_landscapes(landscapes):
         report = classification_report(y_test, y_pred, target_names=["AD", "CN", "FTD"], output_dict=True, zero_division=0)
         print(f"Classifier: {name}")
         print(report)
+
+        # Calculate the accuracy (optional)
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f"Accuracy: {accuracy:.4f}")
+
+        # Optionally, you can also print the precision for each class
+        print(f"Precision (AD): {report['AD']['precision']:.4f}")
+        print(f"Precision (CN): {report['CN']['precision']:.4f}")
+        print(f"Precision (FTD): {report['FTD']['precision']:.4f}")
 
         # Plot the classification scatter plot
         plot_classification(X_test, y_test, f'./Figures/6_Classification_{name.replace(" ", "_")}.png', name)
