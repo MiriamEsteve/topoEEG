@@ -1,7 +1,7 @@
 import numpy as np
 from read_file import (load_all_data, logging)
 from plotting import (
-    plot_ica, plot_persistence_landscape, plot_psd_band_power
+    plot_ica, plot_persistence_landscape, parallel_plot_psd_band_power
 )
 from utils import (
     utils_compute_persistence_diagram, compute_landscape_values, 
@@ -55,8 +55,11 @@ class tda:
         Returns:
         - A vector of mean PSD band power values for each channel.
         """       
-        point_cloud = plot_psd_band_power(subj, raw, self.fmin, self.fmax, self.tmin, self.tmax)
+        point_clouds = parallel_plot_psd_band_power(raw, self.fmin, self.fmax, self.tmin, self.tmax)
 
+         # Print the point cloud shapes for all subjects
+        for subj, point_cloud in zip([subj for subj, _ in raw], point_clouds):
+            print(f"Subject {subj}: Point cloud shape: {point_cloud.shape}")
         return point_cloud
     
     # Compute persistence diagram
@@ -72,13 +75,15 @@ class tda:
         """
         # Step 1: Compute persistence diagrams in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            persistence_diagrams = list(executor.map(utils_compute_persistence_diagram, self.point_clouds))
+            persistence_diagrams = list(executor.map(utils_compute_persistence_diagram, self.point_cloud))
 
         # Step 2: Compute landscape values for each persistence diagram
         with concurrent.futures.ThreadPoolExecutor() as executor:
             landscape_values = list(executor.map(lambda diag: compute_landscape_values(diag, grid), persistence_diagrams))
 
-        return landscape_values * (10**20)
+        landscape_values = np.squeeze(landscape_values)  # Removes dimensions of size 1
+
+        return landscape_values
     
     def plot_persistence_landscape(self, subj, grid, landscape):
         plot_persistence_landscape(subj, grid, landscape)

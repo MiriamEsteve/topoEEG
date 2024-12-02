@@ -92,6 +92,8 @@ def plot_ica(raw_list, n_components, random_state, max_iter):
     # Return cleaned data for all subjects
     return [result[2] for result in results]
 
+import os
+import concurrent.futures
 
 def plot_psd_band_power(subj, raw, fmin=1, fmax=30, tmin=0, tmax=60):
     """
@@ -105,31 +107,56 @@ def plot_psd_band_power(subj, raw, fmin=1, fmax=30, tmin=0, tmax=60):
     Returns:
     - A vector of mean PSD band power values for each channel.
     """
-    
     if not os.path.exists('./Figures/psd/'):
         os.makedirs('./Figures/psd/')
 
     # Compute the Power Spectral Density (PSD) for each channel using Welch's method
-    psds = raw.compute_psd(method="welch", fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax,        
-                            n_fft=4096,      # Increase FFT points for higher frequency resolution
-                            n_overlap=2048,  # Overlap for better averaging
-                            window="hamming" # Window function for spectral leakage control
-                        )
+    psds = raw.compute_psd(
+        method="welch", fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax,
+        n_fft=4096,  # Increase FFT points for higher frequency resolution
+        n_overlap=2048,  # Overlap for better averaging
+        window="hamming"  # Window function for spectral leakage control
+    )
+
     # Plotting
     fig = psds.plot()
-    fig.savefig('./Figures/psd/psd_subj' + subj + '.png')
+    fig.savefig(f'./Figures/psd/psd_subj{subj}.png')
 
     # Extract the PSD data (shape = n_channels, n_frequencies)
     psds_data = psds.get_data()  # Shape: (n_channels, n_frequencies)
-    
+
     # Now, create the point cloud as the PSD data for each channel
     # The point cloud should be the PSD across all frequencies for each channel
     point_cloud = psds_data.T  # Transpose to (n_frequencies, n_channels)
 
     # Print shape of the point cloud for verification
-    print("Point cloud shape:", point_cloud.shape)
+    print(f"Subject {subj}: Point cloud shape: {point_cloud.shape}")
 
     return point_cloud
+
+def parallel_plot_psd_band_power(raw_list, fmin=1, fmax=30, tmin=0, tmax=60):
+    """
+    Parallelizes the PSD computation and plotting for multiple subjects or datasets.
+
+    Parameters:
+    - raw_list: List of tuples [(subj_id, raw_object), ...].
+    - fmin, fmax, tmin, tmax: Parameters for the PSD computation.
+
+    Returns:
+    - List of point clouds for each subject or dataset.
+    """
+    # Parallel processing
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Prepare arguments for each subject
+        futures = [
+            executor.submit(plot_psd_band_power, subj, raw, fmin, fmax, tmin, tmax)
+            for subj, raw in raw_list
+        ]
+        # Collect results
+        point_clouds = [future.result() for future in concurrent.futures.as_completed(futures)]
+
+    print("All subjects processed successfully.")
+    return point_clouds
 
     
 def plot_persistence_landscape(subj, grid, landscape_values):
