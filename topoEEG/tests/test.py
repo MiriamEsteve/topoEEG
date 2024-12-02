@@ -24,10 +24,18 @@ def main():
     # Step 3: Compute PSD band power
     topoEEG_obj.point_cloud = []
 
+    # Step 4: Prepare raw_clean with subject IDs
+    topoEEG_obj.raw_clean = [(f"subj_{i}", raw) for i, raw in enumerate(topoEEG_obj.raw_clean)]
+
+    # Step 5: Compute PSD band power
+    topoEEG_obj.point_cloud = topoEEG_obj.compute_psd_band_power()
+
+    # Print mean values for verification
+    for i, point_cloud in enumerate(topoEEG_obj.point_cloud):
+        print(f"Subject {i} mean PSD band power: {point_cloud.mean()}")
+
     for i, raw in enumerate(topoEEG_obj.raw_clean):
-        # Compute the point cloud
-        topoEEG_obj.point_cloud.append(topoEEG_obj.compute_psd_band_power(str(i), raw))
-        print(topoEEG_obj.point_cloud[-1].mean())
+        
 
         # Define grid and compute landscape values
         grid = np.linspace(0, np.max(topoEEG_obj.point_cloud[-1]), topoEEG_obj.grid_size)

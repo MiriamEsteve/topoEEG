@@ -43,25 +43,26 @@ class tda:
         return raw_clean
 
 
-    def compute_psd_band_power(self, subj, raw):
+    def compute_plot_psd_band_power(self):
         """
-        Computes mean power spectral density (PSD) band power for each channel in an EEGLAB file.
-
-        Parameters:
-        - subj: Subject identifier.
-        - raw: raw EEGLAB .set file.
-        - fmin, fmax: Frequency band limits for the calculation of mean PSD (in Hz).
-
+        Computes and plots the PSD band power for all subjects in raw_clean.
+        
         Returns:
-        - A vector of mean PSD band power values for each channel.
-        """       
-        point_clouds = parallel_plot_psd_band_power(raw, self.fmin, self.fmax, self.tmin, self.tmax)
+        - List of point clouds for each subject.
+        """
+        # Ensure raw_clean is prepared as [(subj_id, raw_object), ...]
+        if not isinstance(self.raw_clean, list) or not all(isinstance(x, tuple) and len(x) == 2 for x in self.raw_clean):
+            raise ValueError("raw_clean must be a list of tuples [(subj_id, raw_object), ...].")
 
-         # Print the point cloud shapes for all subjects
-        for subj, point_cloud in zip([subj for subj, _ in raw], point_clouds):
-            print(f"Subject {subj}: Point cloud shape: {point_cloud.shape}")
-        return point_cloud
-    
+        # Compute PSD band power in parallel
+        point_clouds = parallel_plot_psd_band_power(
+            self.raw_clean, self.fmin, self.fmax, self.tmin, self.tmax
+        )
+
+        return point_clouds
+
+
+
     # Compute persistence diagram
     def compute_persistence_diagram(self, grid):
         """
@@ -104,13 +105,18 @@ class tda:
         
         self.raw_clean = self.compute_ica()
         
-        for i, raw in enumerate(self.raw_clean):
-            # Compute the point cloud
-            self.point_cloud.append(self.compute_psd_band_power(str(i), raw))
-            print(self.point_cloud[-1].mean())
+        # Step 4: Prepare raw_clean with subject IDs
+        self.raw_clean = [(f"subj_{i}", raw) for i, raw in enumerate(self.raw_clean)]
 
-            # Define grid and compute landscape values
-            grid = np.linspace(0, np.max(self.point_cloud[-1]), self.grid_size)
+        # Step 5: Compute PSD band power
+        self.point_cloud = self.compute_plot_psd_band_power()
+
+        # Print mean values for verification
+        for i, point_cloud in enumerate(self.point_cloud):
+            print(f"Subject {i} mean PSD band power: {point_cloud.mean()}")
+
+        # Define grid and compute landscape values
+        grid = np.linspace(0, np.max(self.point_cloud), self.grid_size)
 
         # Compute persistence diagram
         self.landscapes = self.compute_persistence_diagram(grid)
