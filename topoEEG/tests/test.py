@@ -28,23 +28,21 @@ def main():
     topoEEG_obj.raw_clean = [(f"subj_{i}", raw) for i, raw in enumerate(topoEEG_obj.raw_clean)]
 
     # Step 5: Compute PSD band power
-    topoEEG_obj.point_cloud = topoEEG_obj.compute_psd_band_power()
+    topoEEG_obj.point_cloud = topoEEG_obj.compute_plot_psd_band_power()
 
     # Print mean values for verification
     for i, point_cloud in enumerate(topoEEG_obj.point_cloud):
         print(f"Subject {i} mean PSD band power: {point_cloud.mean()}")
 
-    for i, raw in enumerate(topoEEG_obj.raw_clean):
-        
+    # Define grid and compute landscape values
+    grid = np.linspace(0, np.max(topoEEG_obj.point_cloud), topoEEG_obj.grid_size)
 
-        # Define grid and compute landscape values
-        grid = np.linspace(0, np.max(topoEEG_obj.point_cloud[-1]), topoEEG_obj.grid_size)
-
-        # Compute persistence diagram
-        topoEEG_obj.landscapes.append(topoEEG_obj.compute_persistence_diagram(grid))
+    # Compute persistence diagram
+    topoEEG_obj.landscapes = topoEEG_obj.compute_persistence_diagram(grid)
         
+    for i in range(len(topoEEG_obj.landscapes)):
         # Plot the persistence landscape
-        topoEEG_obj.plot_persistence_landscape(str(i), grid, topoEEG_obj.landscapes[-1])
+        topoEEG_obj.plot_persistence_landscape(str(i), grid, topoEEG_obj.landscapes[i])
     
     # Classification
     topoEEG_obj.classify_landscapes(topoEEG_obj.landscapes)

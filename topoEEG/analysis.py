@@ -69,7 +69,7 @@ class tda:
         Computes the persistence diagram from a point cloud using GUDHI's Rips complex.
         
         Parameters:
-        - point_cloud: numpy array representing the point cloud.
+        - grid: numpy array representing the grid.
         
         Returns:
         - Persistence diagram (list of birth-death pairs).
