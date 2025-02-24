@@ -1,0 +1,10 @@
+numpy>=1.21.0
+matplotlib
+scipy
+scikit-learn
+persim
+ripser
+gudhi
+giotto-tda
+mne
+POT
